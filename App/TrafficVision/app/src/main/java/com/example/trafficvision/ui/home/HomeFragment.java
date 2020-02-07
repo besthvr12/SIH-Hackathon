@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -34,14 +35,17 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class HomeFragment extends Fragment {
 
-    private HomeViewModel homeViewModel;
+    protected HomeViewModel homeViewModel;
+    Context context = getContext();
+    TextView textView;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
                 ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
+        textView = root.findViewById(R.id.text_home);
         homeViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
@@ -69,69 +73,80 @@ public class HomeFragment extends Fragment {
 
         //---------------------------------------- Network Tasks
 
-
-
+        String link = "http://harshverma18101.pythonanywhere.com/?format=json";
+        new GetTraffic(context,link).execute(link);
 
 
         //-----------------------------------------
 
 
+        textView.setText("Change Change");
+
+
 
         return root;
     }
-}
-
-class RetrieveFeedTask extends AsyncTask<String , > {
-
-    private Exception exception;
-
-    protected RSSFeed doInBackground(String... urls) {
 
 
-        try {
-            String link = "http://harshverma18101.pythonanywhere.com/?format=json";
-            URL url = new URL(link);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.connect();
+    class GetTraffic extends AsyncTask<String , String , String> {
 
-            InputStream is = conn.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        private Context mContext;
+        private String link ;
+
+
+        public  GetTraffic(Context context , String mLink){
+            mContext = context;
+            link = mLink;
+        }
+
+        protected String doInBackground(String... urls) {
+
 
             StringBuffer buffer = new StringBuffer();
             String line = "";
 
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line+"\n");
-                Log.d("Response: ", "> " + line);
+            try {
 
+                URL url = new URL(link);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.connect();
+
+                InputStream is = conn.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line+"\n");
+                    Log.d("Response: ", "> " + line);
+
+                }
+
+
+
+            }catch(Exception e){
+                Log.i("Inside network", "onCreateView: Error occurred" + e);
             }
-            Toast.makeText(getContext() , buffer.toString() , Toast.LENGTH_SHORT).show();
 
-        }catch(Exception e){
-            Log.i("Inside network", "onCreateView: Error occurred" + e);
+            publishProgress(buffer.toString());
+
+            return buffer.toString();
+
         }
-        try {
-            URL url = new URL(urls[0]);
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser parser = factory.newSAXParser();
-            XMLReader xmlreader = parser.getXMLReader();
-            RssHandler theRSSHandler = new RssHandler();
-            xmlreader.setContentHandler(theRSSHandler);
-            InputSource is = new InputSource(url.openStream());
-            xmlreader.parse(is);
 
-            return theRSSHandler.getFeed();
-        } catch (Exception e) {
-            this.exception = e;
 
-            return null;
-        } finally {
-            is.close();
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            Log.i("executing", values[0]);
+
+            homeViewModel.setText(values[0]);
+
         }
-    }
 
-    protected void onPostExecute(RSSFeed feed) {
-        // TODO: check this.exception
-        // TODO: do something with the feed
+        protected void onPostExecute(String result) {
+
+            Log.i("executing", result);
+        }
     }
 }
+

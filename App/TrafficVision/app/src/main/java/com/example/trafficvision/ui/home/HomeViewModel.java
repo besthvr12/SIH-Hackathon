@@ -11,16 +11,13 @@ public class HomeViewModel extends ViewModel {
     public HomeViewModel() {
         mText = new MutableLiveData<>();
 
-        mText.setValue("This is home fragment");
+        mText.setValue("Bruh");
     }
 
 
-    public void setText(String text){
+    public void setText(String text) {
         mText.setValue(text);
 
-    }
-    public String getData(){
-        return "Stata";
     }
 
     public LiveData<String> getText() {
