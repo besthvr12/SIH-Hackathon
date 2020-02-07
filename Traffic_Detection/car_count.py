@@ -22,5 +22,44 @@ print('Number of cars in the image is '+ str(label.count('car')))
 elapsetime = time.time() - starttimevar
 print(elapsetime)
 
-! pip install cvlib
+import os 
+import re
+
+def atof(text):
+    try:
+        retval = float(text)
+    except ValueError:
+        retval = text
+    return retval
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    float regex comes from https://stackoverflow.com/a/12643073/190597
+    '''
+    return [ atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text) ]
+
+import os 
+folder_path = "/content/ Frames/"
+starttimevar = time.time()
+l = []
+
+# for data_file in sorted(os.listdir(folder_path), key= natural_keys):
+  # im = cv2.imread(folder_path+'/'+data_file)
+im = cv2.imread("/content/ Frames/76.jpg")
+bbox, label, conf = cv.detect_common_objects(im)
+output_image = draw_bbox(im, bbox, label, conf)
+plt.imshow(output_image)
+plt.show()
+print('Number of cars in the ' +data_file +' is '+ str(label.count('car')))
+print('Number of cars in the ' +data_file +' is '+ str(label.count('bus')))
+print('Number of cars in the ' +data_file +' is '+ str(label.count('bicycle')))
+print('Number of cars in the ' +data_file +' is '+ str(label.count('motorbike')))
+print('Number of cars in the ' +data_file +' is '+ str(label.count('truck')))
+  # l.append(str(label.count('car')))
+elapsetime = time.time() - starttimevar
+print(elapsetime)
+print(l)
 
