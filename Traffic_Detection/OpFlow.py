@@ -1,3 +1,11 @@
+import cv2 as cv
+import numpy as np
+import os
+from statistics import mean
+import time
+import json
+
+
 cap = cv.VideoCapture(cv.samples.findFile("/home/siddhant/Datasets/SIH/Traffic_footage_1_low_res.mp4"))
 ret, frame1 = cap.read()
 prvs = cv.cvtColor(frame1,cv.COLOR_BGR2GRAY)
@@ -5,10 +13,13 @@ hsv = np.zeros_like(frame1)
 hsv[...,1] = 255
 
 current_path = os.getcwd()
-f = open(f'{current_path}/record.txt', 'a')
+f = open(f'{current_path}/record.csv', 'a')
 
 start_time = time.time()
 frame_count = 0
+
+f.write("time,vel0,vel-pi/2,vel-pi,vel-3pi/2")
+
 while(1):
     
     ret, frame2 = cap.read()
@@ -54,10 +65,13 @@ while(1):
             if (((ang[i][j] > 1.5*pi + pi/4) and (ang[i][j] < 2*pi + pi/4)) or ((ang[i][j] > 0) and (ang[i][j] < pi/4))):
                 vel_arr[3].append(mag[i][j])
     end = time.time() - start
-    f.write(f"\n time taken this frame - {end}")
-    f.write("\n Average speeds at 4 directions (0,pi/2,pi,3pi/2) =")
-    for i in range (4):
-        vel = mean(vel_arr[i])/end
-        f.write(f"{vel}")
+    
+    vel0 = mean(vel_arr[0])/end
+    vel1 = mean(vel_arr[1])/end
+    vel2 = mean(vel_arr[2])/end
+    vel3 = mean(vel_arr[3])/end
+    f.write(f"{end},")
+    f.write(f"{vel0},{vel1},{vel2},{vel3}\n")
+    
     prvs = next
 f.close()
