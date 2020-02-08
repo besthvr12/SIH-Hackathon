@@ -1,9 +1,3 @@
-import cv2 as cv
-import numpy as np
-import os
-from statistics import mean
-import time
-
 cap = cv.VideoCapture(cv.samples.findFile("/home/siddhant/Datasets/SIH/Traffic_footage_1_low_res.mp4"))
 ret, frame1 = cap.read()
 prvs = cv.cvtColor(frame1,cv.COLOR_BGR2GRAY)
@@ -51,18 +45,19 @@ while(1):
     pi = 3.14
     for i in range(0, 239, 5):
         for j in range(0, 419, 5):
-            if (ang[i][j] > 0) and (ang[i][j] < pi/2):
+            if (ang[i][j] > pi/4) and (ang[i][j] < pi/2 + pi/4):
                 vel_arr[0].append(mag[i][j])
-            if (ang[i][j] > pi/2) and (ang[i][j] < pi):
+            if (ang[i][j] > pi/2 + pi/4) and (ang[i][j] < pi + pi/4):
                 vel_arr[1].append(mag[i][j])
-            if (ang[i][j] > pi) and (ang[i][j] < 1.5*pi):
+            if (ang[i][j] > pi + pi/4) and (ang[i][j] < 1.5*pi + pi/4):
                 vel_arr[2].append(mag[i][j])
-            if (ang[i][j] > 1.5*pi) and (ang[i][j] < 2*pi):
+            if (((ang[i][j] > 1.5*pi + pi/4) and (ang[i][j] < 2*pi + pi/4)) or ((ang[i][j] > 0) and (ang[i][j] < pi/4))):
                 vel_arr[3].append(mag[i][j])
     end = time.time() - start
-    f.write(f"\ntime taken this frame - {end}")
-    f.write("Average speeds at 4 directions (0,pi/2,pi,3pi/2) =")
+    f.write(f"\n time taken this frame - {end}")
+    f.write("\n Average speeds at 4 directions (0,pi/2,pi,3pi/2) =")
     for i in range (4):
-        f.write(f"{(mean(vel_arr[i])/2 + mean(vel_arr[(i+1)%4])/2)/end}")
+        vel = mean(vel_arr[i])/end
+        f.write(f"{vel}")
     prvs = next
 f.close()
