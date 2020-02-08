@@ -5,7 +5,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.trafficvision.R;
 
-import org.json.JSONObject;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -74,14 +72,15 @@ public class HomeFragment extends Fragment {
         //----------------------------------------
 
         //---------------------------------------- Network Tasks
-        if(homeViewModel.getCounter().getValue().intValue() == 0) {
-            String link = "http://harshverma18101.pythonanywhere.com/?format=json";
-            new GetTraffic(context, link).execute(link);
-        }
+
+        String link = "http://harshverma18101.pythonanywhere.com/?format=json";
+        new GetTraffic(context,link).execute(link);
 
 
         //-----------------------------------------
 
+
+        textView.setText("Change Change");
 
 
 
@@ -131,7 +130,7 @@ public class HomeFragment extends Fragment {
             publishProgress(buffer.toString());
 
             return buffer.toString();
-            //update ui after asynctask
+
         }
 
 
@@ -140,34 +139,13 @@ public class HomeFragment extends Fragment {
             super.onProgressUpdate(values);
             Log.i("executing", values[0]);
 
-            homeViewModel.setCounter(1);
-            String level = "";
-
-
-            try{
-            JSONObject reader = new JSONObject(values[0]);
-            level = reader.getString("languages");
-
-            }catch (Exception e){
-                Log.e("JsonError", "onProgressUpdate: Couldnt get json" );
-            }
-            String str = "You are entering" + level + "traffic area";
-            homeViewModel.setText(str);
-
+            homeViewModel.setText(values[0]);
 
         }
 
         protected void onPostExecute(String result) {
 
             Log.i("executing", result);
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    new GetTraffic(context,link).execute(link);
-                }
-            }, 3000);
-
         }
     }
 }
